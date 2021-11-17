@@ -1,11 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { map, switchMap } from 'rxjs/operators';
+import { switchMap } from 'rxjs/operators';
+import { from } from 'rxjs';
+
 import jwtDecode from 'jwt-decode';
 
 import { Storage } from '@capacitor/storage';
-import { from } from 'rxjs';
 
 const TOKEN_KEY = 'access-token';
 const REFRESH_TOKEN = 'refresh-token';

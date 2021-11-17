@@ -1,5 +1,7 @@
 {
   "name": "ionic-with-jwt",
-  "integrations": {},
+  "integrations": {
+    "capacitor": {}
+  },
   "type": "angular"
 }
