@@ -50,7 +50,6 @@ export class LoginPage implements OnInit {
     this.apiService.login(this.credentials.value).subscribe(
       async (res) => {
         await loading.dismiss();
-        await this.modalCtrl.dismiss();
         this.router.navigateByUrl('/inside', { replaceUrl: true });
       },
       async (err) => {
@@ -65,10 +64,6 @@ export class LoginPage implements OnInit {
         await alert.present();
       }
     );
-  }
-
-  close() {
-    this.modalCtrl.dismiss();
   }
 
   get username() {

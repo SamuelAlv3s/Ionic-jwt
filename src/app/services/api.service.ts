@@ -1,12 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { switchMap } from 'rxjs/operators';
-import { from } from 'rxjs';
+import { switchMap, tap } from 'rxjs/operators';
+import { BehaviorSubject, from } from 'rxjs';
 
 import jwtDecode from 'jwt-decode';
 
 import { Storage } from '@capacitor/storage';
+import { Router } from '@angular/router';
 
 const TOKEN_KEY = 'access-token';
 const REFRESH_TOKEN = 'refresh-token';
@@ -17,10 +18,31 @@ const REFRESH_TOKEN = 'refresh-token';
 export class ApiService {
   token = '';
   userId = null;
-  constructor(private http: HttpClient) {}
+
+  private authState: BehaviorSubject<boolean> = new BehaviorSubject(null);
+  constructor(private http: HttpClient, private router: Router) {
+    this.loadToken();
+  }
+
+  async loadToken() {
+    const token = await Storage.get({ key: TOKEN_KEY });
+    if (token?.value) {
+      this.token = token.value;
+      const decoded: any = jwtDecode(this.token);
+      this.userId = decoded.id;
+
+      this.authState.next(true);
+    } else {
+      this.authState.next(false);
+    }
+  }
 
   signUp(credentials: { username; password }) {
-    return this.http.post(`${environment.apiUrl}/users`, credentials);
+    return this.http.post(`${environment.apiUrl}/users`, credentials).pipe(
+      switchMap((result) => {
+        return this.login(credentials);
+      })
+    );
   }
 
   login(credentials: { username; password }) {
@@ -37,7 +59,27 @@ export class ApiService {
           Storage.set({ key: REFRESH_TOKEN, value: data.refreshToken }),
         ]);
         return from(storedTokens);
+      }),
+      tap((_) => {
+        this.authState.next(true);
       })
     );
+  }
+
+  async logout() {
+    this.authState.next(false);
+    this.userId = null;
+    this.token = '';
+    await Storage.remove({ key: TOKEN_KEY });
+    await Storage.remove({ key: REFRESH_TOKEN });
+    this.router.navigateByUrl('/login', { replaceUrl: true });
+  }
+
+  isAuthenticated() {
+    return this.authState.asObservable();
+  }
+
+  getSecretTest() {
+    return this.http.get(`${environment.apiUrl}/users/secret`);
   }
 }
