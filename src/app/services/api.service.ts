@@ -1,8 +1,8 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { switchMap, tap } from 'rxjs/operators';
-import { BehaviorSubject, from } from 'rxjs';
+import { map, switchMap, tap } from 'rxjs/operators';
+import { BehaviorSubject, from, of } from 'rxjs';
 
 import jwtDecode from 'jwt-decode';
 
@@ -81,5 +81,44 @@ export class ApiService {
 
   getSecretTest() {
     return this.http.get(`${environment.apiUrl}/users/secret`);
+  }
+
+  isRefreshTokenValid() {
+    return from(Storage.get({ key: REFRESH_TOKEN })).pipe(
+      map((token) => {
+        if (!token.value) {
+          return false;
+        } else {
+          const decoded: any = jwtDecode(token.value);
+          const now = new Date().getTime();
+          return now < decoded.exp * 1000;
+        }
+      })
+    );
+  }
+
+  getNewAccessToken() {
+    return from(Storage.get({ key: REFRESH_TOKEN })).pipe(
+      switchMap((token) => {
+        if (token) {
+          const httpOptions = {
+            headers: new HttpHeaders({
+              Authorization: `Bearer ${token.value}`,
+            }),
+          };
+          return this.http.get(
+            `${environment.apiUrl}/auth/refresh`,
+            httpOptions
+          );
+        } else {
+          of(null);
+        }
+      })
+    );
+  }
+
+  saveAccessToken(token) {
+    this.token = token;
+    return from(Storage.set({ key: REFRESH_TOKEN, value: token }));
   }
 }
