@@ -1,0 +1,40 @@
+<ion-header>
+  <ion-toolbar color="secondary">
+    <ion-buttons slot="start">
+      <ion-button (click)="close()">
+        <ion-icon name="close" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>My Profile</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <form [formGroup]="profileForm">
+    <ion-item>
+      <ion-label position="stacked">Username</ion-label>
+      <ion-input formControlName="username"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position="stacked">E-mail</ion-label>
+      <ion-input formControlName="email"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position="stacked">Birthday</ion-label>
+      <ion-input
+        type="date"
+        [(ngModel)]="birthday"
+        [ngModelOptions]="{ standalone: true }"
+      ></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position="stacked">My Bio</ion-label>
+      <ion-textarea rows="5" formControlName="bio"></ion-textarea>
+    </ion-item>
+
+    <ion-button expand="full" (click)="updateUser()">Update Profile</ion-button>
+    <ion-button expand="full" (click)="deleteAccount()" color="danger"
+      >Delete My Account</ion-button
+    >
+  </form>
+</ion-content>

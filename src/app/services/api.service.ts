@@ -121,4 +121,16 @@ export class ApiService {
     this.token = token;
     return from(Storage.set({ key: REFRESH_TOKEN, value: token }));
   }
+
+  getProfile() {
+    return this.http.get(`${environment.apiUrl}/users/${this.userId}`);
+  }
+
+  updateProfile(data) {
+    return this.http.put(`${environment.apiUrl}/users/${this.userId}`, data);
+  }
+
+  deleteAccount() {
+    return this.http.delete(`${environment.apiUrl}/users/${this.userId}`);
+  }
 }
