@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { ModalController, ToastController } from '@ionic/angular';
 import { switchMap } from 'rxjs/operators';
 import { ApiService } from 'src/app/services/api.service';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 
 @Component({
   selector: 'app-profile',
@@ -12,6 +13,7 @@ import { ApiService } from 'src/app/services/api.service';
 export class ProfileComponent implements OnInit {
   profileForm: FormGroup;
   birthday = null;
+  avatar = null;
   constructor(
     private modalCtrl: ModalController,
     private fb: FormBuilder,
@@ -37,6 +39,10 @@ export class ProfileComponent implements OnInit {
     this.apiService.getProfile().subscribe((res: any) => {
       console.log(res);
       this.profileForm.patchValue(res);
+
+      if (res.avatar_url) {
+        this.avatar = res.avatar_url;
+      }
 
       if (res.dateOfBirth && res.dateOfBirth.year !== '') {
         this.birthday = `${res.dateOfBirth.year}-${res.dateOfBirth.month}-${res.dateOfBirth.day}`;
@@ -85,5 +91,21 @@ export class ProfileComponent implements OnInit {
 
   close() {
     this.modalCtrl.dismiss();
+  }
+
+  async updateAvatar() {
+    const image = await Camera.getPhoto({
+      quality: 90,
+      allowEditing: true,
+      resultType: CameraResultType.Uri,
+      source: CameraSource.Photos,
+    });
+
+    console.log(image);
+    this.apiService.uploadAvatar(image).then((res) => {
+      console.log('after update: ', res);
+      this.avatar = null;
+      this.loadUser();
+    });
   }
 }

@@ -8,6 +8,9 @@ import jwtDecode from 'jwt-decode';
 
 import { Storage } from '@capacitor/storage';
 import { Router } from '@angular/router';
+import { Photo } from '@capacitor/camera';
+import { isPlatform } from '@ionic/core';
+import { Directory, Filesystem } from '@capacitor/filesystem';
 
 const TOKEN_KEY = 'access-token';
 const REFRESH_TOKEN = 'refresh-token';
@@ -132,5 +135,46 @@ export class ApiService {
 
   deleteAccount() {
     return this.http.delete(`${environment.apiUrl}/users/${this.userId}`);
+  }
+
+  async uploadAvatar(image: Photo) {
+    let file = null;
+
+    if (isPlatform('hybrid')) {
+      const { data } = await Filesystem.readFile({
+        path: image.path,
+        directory: Directory.Documents,
+      });
+
+      file = await this.dataUrlToFile(data);
+    } else {
+      const blob = await fetch(image.webPath).then((res) => res.blob());
+      file = new File([blob], 'myFile', { type: blob.type });
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http
+      .post(`${environment.apiUrl}/users/${this.userId}/avatar`, formData)
+      .toPromise();
+  }
+
+  private dataUrlToFile(
+    dataUrl: string,
+    fileName: string = 'myFile'
+  ): Promise<File> {
+    return fetch(`data:image/png;base64,${dataUrl}`)
+      .then((res) => res.blob())
+      .then((blob) => {
+        return new File([blob], fileName, { type: 'image/png' });
+      });
+  }
+
+  getUsers() {
+    return this.http.get(`${environment.apiUrl}/users`);
+  }
+
+  getUserById(id) {
+    return this.http.get(`${environment.apiUrl}/users/${id}`);
   }
 }

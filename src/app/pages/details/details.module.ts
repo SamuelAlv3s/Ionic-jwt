@@ -4,10 +4,9 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
-import { InsidePageRoutingModule } from './inside-routing.module';
+import { DetailsPageRoutingModule } from './details-routing.module';
 
-import { InsidePage } from './inside.page';
-import { ProfileComponent } from '../profile/profile.component';
+import { DetailsPage } from './details.page';
 import { SharedModule } from 'src/app/pipes/shared/shared.module';
 
 @NgModule({
@@ -15,10 +14,10 @@ import { SharedModule } from 'src/app/pipes/shared/shared.module';
     CommonModule,
     FormsModule,
     IonicModule,
-    InsidePageRoutingModule,
+    DetailsPageRoutingModule,
     ReactiveFormsModule,
     SharedModule,
   ],
-  declarations: [InsidePage, ProfileComponent],
+  declarations: [DetailsPage],
 })
-export class InsidePageModule {}
+export class DetailsPageModule {}

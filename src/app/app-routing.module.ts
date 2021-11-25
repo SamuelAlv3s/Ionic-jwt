@@ -19,6 +19,11 @@ const routes: Routes = [
       import('./pages/inside/inside.module').then((m) => m.InsidePageModule),
     canActivate: [AuthGuard],
   },
+  {
+    path: 'inside/:id',
+    loadChildren: () =>
+      import('./pages/details/details.module').then((m) => m.DetailsPageModule),
+  },
 ];
 
 @NgModule({
